@@ -8,6 +8,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const errorHandler = require("./middlewares/errorHandler");
+const User = require("./models/User");
 
 const app = express();
 
@@ -60,14 +61,20 @@ app.get("/health", (req, res) => {
 // app.use("/api/v1/users", userRoutes);
 // app.use("/api/v1/posts", postRoutes);
 
+// Temporary test — add below the health check route
+app.get("/test-model", async (req, res) => {
+  // This just confirms Mongoose registered the model correctly
+  res.json({ model: User.modelName, collection: User.collection.name });
+});
+
 // ─── 404 HANDLER ───────────────────────────────────────────────────────────
 
 // If no route matched above, this runs
 // We create an ApiError and pass to error handler via next()
-app.use((req, res, next) => {
-  const ApiError = require("./utils/ApiError");
-  next(new ApiError(404, `Route ${req.originalUrl} not found`));
-});
+// app.use((req, res, next) => {
+//   const ApiError = require("./utils/ApiError");
+//   next(new ApiError(404, `Route ${req.originalUrl} not found`));
+// });
 
 // ─── GLOBAL ERROR HANDLER ──────────────────────────────────────────────────
 
