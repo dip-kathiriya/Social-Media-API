@@ -2,13 +2,23 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/auth.controller");
 const authenticate = require("../middlewares/authenticate");
+const validate = require("../middlewares/validate");
+const {
+  validateRegister,
+  validateLogin,
+} = require("../validators/auth.validator");
+
+// validate(validateRegister) runs BEFORE authController.register
+// If validation fails → 422 error returned, controller never called
+// If validation passes → next() called → controller runs
+
 
 // Public routes — no auth required
 // POST /api/v1/auth/register
-router.post("/register", authController.register);
+router.post("/register", validate(validateRegister), authController.register);
 
 // POST /api/v1/auth/login
-router.post("/login", authController.login);
+router.post("/login", validate(validateLogin), authController.login);
 
 // POST /api/v1/auth/refresh
 // Uses httpOnly cookie — no token in header needed
