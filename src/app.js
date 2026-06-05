@@ -9,6 +9,7 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const errorHandler = require("./middlewares/errorHandler");
 const User = require("./models/User");
+const authRoutes = require("./routes/auth.route")
 
 const app = express();
 
@@ -75,6 +76,9 @@ app.get("/test-model", async (req, res) => {
 //   const ApiError = require("./utils/ApiError");
 //   next(new ApiError(404, `Route ${req.originalUrl} not found`));
 // });
+
+// Add this line below the health check, replacing the commented-out line
+app.use("/api/v1/auth", authRoutes);
 
 // ─── GLOBAL ERROR HANDLER ──────────────────────────────────────────────────
 

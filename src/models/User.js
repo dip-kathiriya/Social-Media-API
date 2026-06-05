@@ -216,13 +216,13 @@ userSchema.virtual("profileUrl").get(function () {
 // PASSWORD HASHING HOOK
 // This ensures passwords are ALWAYS hashed before storing — you can't forget.
 // Even if a developer calls user.save() directly, the hook fires.
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   // `this` = the document being saved
 
   // isModified("password") returns true only if password field was changed
   // This prevents re-hashing an already-hashed password on every save
   // e.g. if you update bio, password is unchanged, so skip hashing
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password")) return;
 
   // bcrypt.hash(password, saltRounds)
   // saltRounds = 12 means bcrypt runs 2^12 = 4096 iterations of its hashing function
@@ -230,19 +230,18 @@ userSchema.pre("save", async function (next) {
   // 10-12 is the industry sweet spot for web APIs
   this.password = await bcrypt.hash(this.password, 12);
 
-  next(); // Call next() to continue the save operation
+  // next(); // Call next() to continue the save operation
 });
 
 // TRACK PASSWORD CHANGE TIME
 // When password changes, record the timestamp.
 // We'll use this to invalidate old JWT tokens.
-userSchema.pre("save", function (next) {
-  if (!this.isModified("password") || this.isNew) return next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password") || this.isNew) return;
   // this.isNew = true when document is being created for the first time
   // We subtract 1 second as a safety buffer — token issuance and DB write
   // can have slight timing differences; this ensures the comparison works correctly
   this.passwordChangedAt = Date.now() - 1000;
-  next();
 });
 
 // ─── INSTANCE METHODS ─────────────────────────────────────────────────────────
